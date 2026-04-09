@@ -1,250 +1,227 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/alhwyn-canlii-mcp-badge.png)](https://mseep.ai/app/alhwyn-canlii-mcp)
+# CanLII MCP Server (Local Stdio)
 
-# CanLII MCP Server
+A local [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for searching Canadian legal information via the [CanLII](https://www.canlii.org) API. Runs as a stdio process — no cloud deployment needed.
 
-A Model Context Protocol (MCP) server that provides access to the CanLII (Canadian Legal Information Institute) API. This server allows AI assistants to search and retrieve Canadian legal information including court decisions, legislation, and legal citations.
+Forked from [Alhwyn/canlii-mcp](https://github.com/Alhwyn/canlii-mcp) and converted from Cloudflare Workers to a local stdio server with additional tools and enhancements.
+
+## What's Different from the Original
+
+- **Local stdio transport** — runs as a local Node.js process, no Cloudflare Workers or remote deployment
+- **Full-text search tool** — search across all of CanLII by keyword (undocumented but functional endpoint)
+- **Case citator tease tool** — quick citation preview (max 5 results)
+- **Built-in rate limiting** — respects CanLII's API limits (2 req/sec, 1 concurrent, 5,000/day)
+- **Citator language support** — both English and French work (despite official docs claiming English-only)
+- **Enriched tool descriptions** — guides AI assistants on when/why to use each tool, with common database IDs
+- **Removed dead dependencies** — stripped `cheerio`, `agents`, `wrangler`, Cloudflare Workers types
+- **Removed prompt injection** — cleaned up server description that referenced a deleted tool
 
 ## Prerequisites
 
-- A CanLII API key (obtain from [CanLII API](https://api.canlii.org/))
-- Node.js and npm
-- Cloudflare Workers account (for deployment)
+- Node.js 18+
+- A CanLII API key — request one via the [CanLII feedback form](https://www.canlii.org/en/feedback/feedback.html)
 
-## Setup
+## Quick Start (npx)
 
-### 1. Clone and Install Dependencies
-
-```bash
-git clone <repository-url>
-cd canlii-mcp
-npm install
-```
-
-### 2. Configure Environment Variables
-
-Create a `.env` file or configure your Cloudflare Workers environment with:
-
-```bash
-CANLII_API=your_canlii_api_key_here
-```
-
-For Cloudflare Workers deployment, set the environment variable using:
-
-```bash
-wrangler secret put CANLII_API
-```
-
-### 3. Local Development
-
-```bash
-npm run dev
-```
-
-This will start the server locally at `http://localhost:8787`
-
-### 4. Deploy to Cloudflare Workers
-
-```bash
-npm run deploy
-```
-
-## Available Tools
-
-### 1. get_courts_and_tribunals
-
-Retrieves a list of available courts and tribunals databases.
-
-**Parameters:**
-
-- `language` (required): "en" or "fr"
-- Optional date filters: `publishedBefore`, `publishedAfter`, `modifiedBefore`, `modifiedAfter`, `changedBefore`, `changedAfter`, `decisionDateBefore`, `decisionDateAfter`
-
-### 2. get_legislation_databases
-
-Gets available legislation databases (statutes, regulations, etc.).
-
-**Parameters:**
-
-- `language` (required): "en" or "fr"
-- Optional date filters (same as above)
-
-### 3. browse_legislation
-
-Browse legislation within a specific database.
-
-**Parameters:**
-
-- `language` (required): "en" or "fr"
-- `databaseId` (required): Database code (e.g., "cas" for Canada Statutes, "car" for Canada Regulations)
-- Optional date filters
-
-### 4. get_legislation_regulation_metadata
-
-Get detailed metadata for a specific piece of legislation.
-
-**Parameters:**
-
-- `language` (required): "en" or "fr"
-- `databaseId` (required): Database identifier
-- `legislationId` (required): Specific legislation ID
-
-### 5. get_case_law_decisions
-
-Retrieve case law decisions from a specific database.
-
-**Parameters:**
-
-- `language` (required): "en" or "fr"
-- `databaseId` (required): Database identifier
-- `offset` (required): Starting record number
-- `resultCount` (required): Number of results (max 10,000)
-- Optional date filters
-
-### 6. get_case_metadata
-
-Get detailed metadata for a specific court case.
-
-**Parameters:**
-
-- `language` (required): "en" or "fr"
-- `databaseId` (required): Database identifier
-- `caseId` (required): Case identifier
-- Optional date filters
-
-### 7. get_case_citator
-
-Get citation information for cases (what cases cite this case, what this case cites, etc.).
-
-**Parameters:**
-
-- `language` (required): "en" or "fr"
-- `databaseId` (required): Database identifier
-- `caseId` (required): Case identifier
-- `metadataType` (required): "citedCases", "citingCases", or "citedLegislations"
-- Optional date filters
-
-## Connecting to Claude Desktop
-
-1. Install the [mcp-remote proxy](https://www.npmjs.com/package/mcp-remote):
-
-   ```bash
-   npm install -g mcp-remote
-   ```
-
-2. In Claude Desktop, go to Settings > Developer > Edit Config and add:
+No installation needed — run directly with `npx`:
 
 ```json
 {
   "mcpServers": {
     "canlii": {
       "command": "npx",
-      "args": ["mcp-remote", "http://localhost:8787/sse"]
+      "args": ["-y", "canlii-mcp"],
+      "env": {
+        "CANLII_API_KEY": "your_api_key_here"
+      }
     }
   }
 }
 ```
 
-For deployed servers, replace the URL with your Cloudflare Workers URL:
+## Setup (from source)
 
-```
-https://your-worker-name.your-account.workers.dev/sse
-```
-
-3. Restart Claude Desktop
-
-## Connecting to Cloudflare AI Playground
-
-1. Go to https://playground.ai.cloudflare.com/
-2. Enter your MCP server URL: `https://your-worker-name.your-account.workers.dev/sse`
-3. The CanLII tools will be available in the playground
-
-## Usage Examples
-
-### Finding Court Decisions
-
-```typescript
-// Get available courts and tribunals
-await get_courts_and_tribunals({
-  language: "en",
-});
-
-// Browse recent decisions from Supreme Court of Canada
-await get_case_law_decisions({
-  language: "en",
-  databaseId: "scc-csc",
-  offset: 0,
-  resultCount: 10,
-});
+```bash
+git clone https://github.com/mohammadfarooqi/canlii-mcp.git
+cd canlii-mcp
+npm install
+npm run build
 ```
 
-### Searching Legislation
+## Connecting to Claude Desktop
 
-```typescript
-// Get legislation databases
-await get_legislation_databases({
-  language: "en",
-});
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
-// Browse federal statutes
-await browse_legislation({
-  language: "en",
-  databaseId: "cas",
-});
-
-// Get specific act metadata
-await get_legislation_regulation_metadata({
-  language: "en",
-  databaseId: "cas",
-  legislationId: "criminal-code",
-});
+```json
+{
+  "mcpServers": {
+    "canlii": {
+      "command": "npx",
+      "args": ["-y", "canlii-mcp"],
+      "env": {
+        "CANLII_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
 ```
 
-### Case Citations
+Or if installed from source:
 
-```typescript
-// Get case metadata
-await get_case_metadata({
-  language: "en",
-  databaseId: "scc-csc",
-  caseId: "2023scc1",
-});
-
-// Find cases that cite this case
-await get_case_citator({
-  language: "en",
-  databaseId: "scc-csc",
-  caseId: "2023scc1",
-  metadataType: "citingCases",
-});
+```json
+{
+  "mcpServers": {
+    "canlii": {
+      "command": "node",
+      "args": ["/path/to/canlii-mcp/dist/index.js"],
+      "env": {
+        "CANLII_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
 ```
+
+Restart Claude Desktop after saving.
+
+## Connecting to Claude Code
+
+```bash
+claude mcp add canlii -e CANLII_API_KEY=your_key -- npx -y canlii-mcp
+```
+
+## Available Tools (9)
+
+### search
+
+Full-text keyword search across all of CanLII — cases, legislation, and commentary. This is the primary entry point for legal research.
+
+```
+search({ query: "material change in circumstances Ontario", resultCount: 10 })
+```
+
+### get_courts_and_tribunals
+
+List all available court and tribunal databases. Returns database IDs needed by other tools.
+
+Key Ontario databases: `onsc` (Superior Court), `onca` (Court of Appeal), `oncj` (Court of Justice), `csc-scc` (Supreme Court of Canada).
+
+### get_case_law_decisions
+
+Browse case law decisions from a specific court database, ordered by most recently added. Supports date filters.
+
+```
+get_case_law_decisions({ databaseId: "onsc", resultCount: 20 })
+```
+
+### get_case_metadata
+
+Get full details for a specific case — citation, decision date, docket number, keywords, and **CanLII URL** for reading the full decision.
+
+```
+get_case_metadata({ databaseId: "onsc", caseId: "2021onsc8582" })
+```
+
+### get_case_citator
+
+Look up citation relationships for a case. Use `citingCases` to check if a case is still good law.
+
+```
+get_case_citator({ databaseId: "csc-scc", caseId: "1996canlii190", metadataType: "citingCases" })
+```
+
+### get_case_citator_tease
+
+Quick citation preview returning max 5 results. Faster than the full citator for a quick check.
+
+### get_legislation_databases
+
+List all legislation databases. Ontario: `ons` (Statutes), `onr` (Regulations). Federal: `cas` (Statutes), `car` (Regulations).
+
+### browse_legislation
+
+List legislation items within a specific database.
+
+```
+browse_legislation({ databaseId: "ons" })
+```
+
+### get_legislation_regulation_metadata
+
+Get metadata for a specific statute or regulation, including its CanLII URL.
+
+## Typical Research Workflow
+
+1. **Search** — `search({ query: "gatekeeping parenting time" })` to find relevant cases
+2. **Get details** — `get_case_metadata(...)` to get the full citation and CanLII URL
+3. **Check citations** — `get_case_citator(..., metadataType: "citingCases")` to verify the case is still good law
+4. **Read the decision** — Click the CanLII URL to read the full text on canlii.org
+
+## API Rate Limits
+
+Per CanLII's API terms:
+- **5,000 queries per day**
+- **2 requests per second**
+- **1 request at a time**
+- Metadata access only — full document text is not available via the API
+
+The server enforces these limits automatically with a built-in rate limiter.
 
 ## Development
 
-### Scripts
-
-- `npm run dev` - Start local development server
-- `npm run deploy` - Deploy to Cloudflare Workers
-- `npm run format` - Format code with Biome
-- `npm run lint:fix` - Fix linting issues
-- `npm run type-check` - Run TypeScript type checking
+```bash
+npm run build    # Compile TypeScript
+npm run start    # Run the server (needs CANLII_API_KEY env var)
+```
 
 ### Project Structure
 
 ```
 src/
-├── index.ts          # Main MCP server implementation
-├── schema.ts         # Zod schemas for API responses
-└── worker-configuration.d.ts  # TypeScript declarations
+  index.ts     # MCP server — tools, rate limiter, stdio transport
+  schema.ts    # Zod schemas for CanLII API responses
 ```
-
-## API Rate Limits
-
-Be aware of CanLII API rate limits and usage terms. The API is intended for research and educational purposes.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+Contributions are welcome! This project aims to make Canadian legal research more accessible through AI tooling.
+
+**Ways to contribute:**
+- Report bugs or unexpected API behavior — [open an issue](https://github.com/mohammadfarooqi/canlii-mcp/issues)
+- Suggest new tools or improvements — [start a discussion](https://github.com/mohammadfarooqi/canlii-mcp/issues)
+- Submit a PR with fixes or new features
+
+**To submit a PR:**
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/my-improvement`)
+3. Make your changes and test locally (`npm run build && CANLII_API_KEY=your_key npm run start`)
+4. Commit and push to your fork
+5. Open a pull request with a description of what you changed and why
+
+If you find issues with the CanLII API responses, schema mismatches, or have ideas for new tools that would help legal researchers, please open an issue — even if you're not sure how to fix it. We'll investigate together.
+
+## Security
+
+This server is designed to be transparent and minimal:
+
+- **Only connects to `api.canlii.org`** — no other network calls, no telemetry, no analytics
+- **API key stays local** — passed via environment variable, never logged or included in responses
+- **All inputs validated** — database IDs, case IDs, and dates are regex-validated before use; path segments are URI-encoded
+- **All API responses validated** — parsed through Zod schemas before being returned
+- **No file system access** — the server only makes HTTPS calls to CanLII
+- **No shell execution** — no `child_process`, `exec`, or `spawn`
+- **2 runtime dependencies** — `@modelcontextprotocol/sdk` (official Anthropic MCP SDK) and `zod` (schema validation)
+- **Rate limiter built in** — serialized request queue prevents API abuse
+- **MIT licensed, fully open source** — read every line at [src/index.ts](src/index.ts) (~350 lines) and [src/schema.ts](src/schema.ts) (~140 lines)
+
+If you discover a security issue, please see [SECURITY.md](SECURITY.md).
+
+## Known Limitations
+
+- **No full-text content** — the CanLII API provides metadata only; full decision text must be read on canlii.org directly (the case URL is always included in metadata responses)
+- **Search endpoint is undocumented** — it works but is not in CanLII's official API docs, so it could change without notice
+- **Search has no database/jurisdiction filter** — you cannot limit search results to a specific court or province server-side; add jurisdiction keywords to your query instead (e.g., "custody Ontario" instead of just "custody")
+- **Rate limits are strict** — 5,000 queries/day, 2 req/sec, 1 concurrent request (enforced automatically by the built-in rate limiter)
+
+## License
+
+MIT — see [LICENSE](LICENSE).

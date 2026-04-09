@@ -1,27 +1,59 @@
 {
-  "name": "remote-mcp-server-authless",
-  "version": "0.0.0",
-  "private": true,
+  "name": "canlii-mcp",
+  "version": "1.1.0",
+  "description": "Local stdio MCP server for searching Canadian legal information via the CanLII API",
   "type": "module",
+  "bin": {
+    "canlii-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist/index.js",
+    "dist/schema.js",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
   "scripts": {
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "format": "biome format --write",
-    "lint:fix": "biome lint --fix",
-    "start": "wrangler dev",
-    "cf-typegen": "wrangler types",
-    "type-check": "tsc --noEmit"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "node --test dist/test.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "canlii",
+    "legal",
+    "canada",
+    "law",
+    "case-law",
+    "legislation",
+    "legal-research",
+    "claude",
+    "model-context-protocol",
+    "ai",
+    "ontario",
+    "court",
+    "citator"
+  ],
+  "author": "Mohammad Farooqi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohammadfarooqi/canlii-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mohammadfarooqi/canlii-mcp/issues"
+  },
+  "homepage": "https://github.com/mohammadfarooqi/canlii-mcp#readme",
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.13.1",
-    "agents": "^0.0.100",
-    "cheerio": "^1.1.0",
+    "@modelcontextprotocol/sdk": "^1.13.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.6",
     "@types/node": "^24.0.12",
-    "typescript": "^5.8.3",
-    "wrangler": "^4.24.1"
+    "typescript": "^5.8.3"
   }
 }
