@@ -1,55 +1,19 @@
-# CanLII MCP Server (Local Stdio)
+# CanLII MCP Server
 
-A local [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for searching Canadian legal information via the [CanLII](https://www.canlii.org) API. Runs as a stdio process — no cloud deployment needed.
+[![npm version](https://img.shields.io/npm/v/canlii-mcp)](https://www.npmjs.com/package/canlii-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Forked from [Alhwyn/canlii-mcp](https://github.com/Alhwyn/canlii-mcp) and converted from Cloudflare Workers to a local stdio server with additional tools and enhancements.
-
-## What's Different from the Original
-
-- **Local stdio transport** — runs as a local Node.js process, no Cloudflare Workers or remote deployment
-- **Full-text search tool** — search across all of CanLII by keyword (undocumented but functional endpoint)
-- **Case citator tease tool** — quick citation preview (max 5 results)
-- **Built-in rate limiting** — respects CanLII's API limits (2 req/sec, 1 concurrent, 5,000/day)
-- **Citator language support** — both English and French work (despite official docs claiming English-only)
-- **Enriched tool descriptions** — guides AI assistants on when/why to use each tool, with common database IDs
-- **Removed dead dependencies** — stripped `cheerio`, `agents`, `wrangler`, Cloudflare Workers types
-- **Removed prompt injection** — cleaned up server description that referenced a deleted tool
-
-## Prerequisites
-
-- Node.js 18+
-- A CanLII API key — request one via the [CanLII feedback form](https://www.canlii.org/en/feedback/feedback.html)
-
-## Quick Start (npx)
-
-No installation needed — run directly with `npx`:
-
-```json
-{
-  "mcpServers": {
-    "canlii": {
-      "command": "npx",
-      "args": ["-y", "canlii-mcp"],
-      "env": {
-        "CANLII_API_KEY": "your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-## Setup (from source)
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for searching Canadian legal information via the [CanLII](https://www.canlii.org) API. Search cases, browse legislation, and check citations — all from Claude Desktop or Claude Code.
 
 ```bash
-git clone https://github.com/mohammadfarooqi/canlii-mcp.git
-cd canlii-mcp
-npm install
-npm run build
+npx canlii-mcp
 ```
 
-## Connecting to Claude Desktop
+## Quick Start
 
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+**Prerequisites:** Node.js 18+ and a [CanLII API key](https://www.canlii.org/en/feedback/feedback.html) (free for research use).
+
+**Claude Desktop** — add to your config (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
 ```json
 {
@@ -57,22 +21,6 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "canlii": {
       "command": "npx",
       "args": ["-y", "canlii-mcp"],
-      "env": {
-        "CANLII_API_KEY": "your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-Or if installed from source:
-
-```json
-{
-  "mcpServers": {
-    "canlii": {
-      "command": "node",
-      "args": ["/path/to/canlii-mcp/dist/index.js"],
       "env": {
         "CANLII_API_KEY": "your_api_key_here"
       }
@@ -83,10 +31,18 @@ Or if installed from source:
 
 Restart Claude Desktop after saving.
 
-## Connecting to Claude Code
+**Claude Code:**
 
 ```bash
 claude mcp add canlii -e CANLII_API_KEY=your_key -- npx -y canlii-mcp
+```
+
+**From source** (for development):
+
+```bash
+git clone https://github.com/mohammadfarooqi/canlii-mcp.git
+cd canlii-mcp
+npm install && npm run build
 ```
 
 ## Available Tools (9)
@@ -132,6 +88,10 @@ get_case_citator({ databaseId: "csc-scc", caseId: "1996canlii190", metadataType:
 ### get_case_citator_tease
 
 Quick citation preview returning max 5 results. Faster than the full citator for a quick check.
+
+```
+get_case_citator_tease({ databaseId: "csc-scc", caseId: "1996canlii190", metadataType: "citingCases" })
+```
 
 ### get_legislation_databases
 
