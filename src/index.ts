@@ -111,11 +111,12 @@ const dateParametersSchema = {
 server.tool(
 	"search",
 	"Search CanLII for cases, legislation, and commentary by keyword. This is the primary entry point for legal research. " +
-	"Returns case citations, commentary articles, and legislation matches ranked by relevance. " +
-	"Use this tool FIRST when researching a legal topic, then drill into specific results with get_case_metadata or get_case_citator. " +
-	"Common Canadian legal search terms: 'best interests of the child', 'material change in circumstances', 'standard of review', " +
-	"'duty to consult', 'reasonable expectation of privacy'. Include jurisdiction keywords to narrow results (e.g., 'Ontario', 'Alberta'). " +
-	"Always cite the CanLII citation and provide the case URL so the user can verify the source.",
+	"Returns case citations and titles ranked by relevance — does NOT include keywords, dates, or URLs. " +
+	"Call get_case_metadata on promising results to get full details before citing a case. " +
+	"Search is keyword-based, not semantic — use specific legal terms rather than natural language. " +
+	"Common terms: 'best interests of the child', 'material change in circumstances', 'standard of review', " +
+	"'duty to consult', 'reasonable expectation of privacy'. Include jurisdiction to narrow results (e.g., 'Ontario', 'Alberta'). " +
+	"Date filters are NOT supported on search. Always cite the CanLII citation and provide the case URL so the user can verify the source.",
 	{
 		query: z.string()
 			.describe("Full-text search query. Can include case names, legal concepts, legislation references, or keywords."),

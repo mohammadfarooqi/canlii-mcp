@@ -189,10 +189,14 @@ If you discover a security issue, please see [SECURITY.md](SECURITY.md).
 
 ## Known Limitations
 
-- **No decision body text** — full-text *search* works (searching across case titles, citations, and content), but the API cannot return the full text of a decision. You must click the CanLII URL to read the decision on canlii.org (the URL is always included in metadata responses)
-- **Search endpoint is undocumented** — it works but is not in CanLII's official API docs, so it could change without notice
-- **Search has no database/jurisdiction filter** — you cannot limit search results to a specific court or province server-side; add jurisdiction keywords to your query instead (e.g., "custody Ontario" instead of just "custody")
-- **Rate limits are strict** — 5,000 queries/day, 2 req/sec, 1 concurrent request (enforced automatically by the built-in rate limiter)
+- **No decision body text** — full-text *search* works (searching across case titles, citations, and content), but the API cannot return the full text of a decision. You must click the CanLII URL to read the decision on canlii.org. Paragraph numbers and direct quotes need to be verified by reading the source.
+- **Search is keyword-based, not semantic** — queries like "mother gatekeeping sole decision-making" may return mixed results. Refine queries and check case titles before drilling into metadata.
+- **Search results don't include case details** — search returns only citations and titles. You need to call `get_case_metadata` separately for each case to get keywords, topics, decision date, and the CanLII URL.
+- **No treatment indicators** — the citator shows what cases cite a decision, but does not indicate whether it was followed, distinguished, or overturned. You need to read the citing cases to determine treatment.
+- **Citator tease caps at 5 results** — use `get_case_citator` (full version) for comprehensive citation analysis.
+- **Search has no database/jurisdiction filter** — you cannot limit search results to a specific court or province server-side; add jurisdiction keywords to your query instead (e.g., "custody Ontario" instead of just "custody").
+- **Search endpoint is undocumented** — it works but is not in CanLII's official API docs, so it could change without notice.
+- **Rate limits are strict** — 5,000 queries/day, 2 req/sec, 1 concurrent request (enforced automatically by the built-in rate limiter).
 
 ## License
 
