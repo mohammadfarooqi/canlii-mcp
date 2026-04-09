@@ -1,6 +1,6 @@
 {
   "name": "canlii-mcp",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Local stdio MCP server for searching Canadian legal information via the CanLII API",
   "type": "module",
   "bin": {
