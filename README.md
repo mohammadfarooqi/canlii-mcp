@@ -9,6 +9,18 @@ A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for sea
 npx canlii-mcp
 ```
 
+## Features
+
+- **Full-text search** — search across all of CanLII by keyword, case name, or legal concept
+- **Case citator** — check if a case is still good law by finding what later cases cite it
+- **Legislation browsing** — browse statutes and regulations by jurisdiction
+- **Bilingual** — English and French support across all tools including the citator
+- **9 tools** — search, browse courts, browse cases, case metadata, full citator, citator preview, legislation databases, browse legislation, legislation metadata
+- **Built-in rate limiting** — serialized request queue respects CanLII's API limits (2 req/sec, 1 concurrent, 5,000/day)
+- **Input validation** — all parameters regex-validated and URI-encoded to prevent injection
+- **Minimal footprint** — 2 runtime dependencies, ~500 lines of code, runs locally as a stdio process
+- **Security-first** — no file system access, no shell execution, only connects to `api.canlii.org`
+
 ## Quick Start
 
 **Prerequisites:** Node.js 18+ and a [CanLII API key](https://www.canlii.org/en/feedback/feedback.html) (free for research use).
