@@ -15,7 +15,10 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "node --test dist/test.js",
+    "test": "npm run build && node --test dist/test.js",
+    "release:patch": "npm version patch && git push origin main --tags && gh release create v$(node -p \"require('./package.json').version\") --generate-notes -R mohammadfarooqi/canlii-mcp",
+    "release:minor": "npm version minor && git push origin main --tags && gh release create v$(node -p \"require('./package.json').version\") --generate-notes -R mohammadfarooqi/canlii-mcp",
+    "release:major": "npm version major && git push origin main --tags && gh release create v$(node -p \"require('./package.json').version\") --generate-notes -R mohammadfarooqi/canlii-mcp",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

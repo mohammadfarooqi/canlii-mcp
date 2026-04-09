@@ -189,7 +189,7 @@ If you discover a security issue, please see [SECURITY.md](SECURITY.md).
 
 ## Known Limitations
 
-- **No full-text content** — the CanLII API provides metadata only; full decision text must be read on canlii.org directly (the case URL is always included in metadata responses)
+- **No decision body text** — full-text *search* works (searching across case titles, citations, and content), but the API cannot return the full text of a decision. You must click the CanLII URL to read the decision on canlii.org (the URL is always included in metadata responses)
 - **Search endpoint is undocumented** — it works but is not in CanLII's official API docs, so it could change without notice
 - **Search has no database/jurisdiction filter** — you cannot limit search results to a specific court or province server-side; add jurisdiction keywords to your query instead (e.g., "custody Ontario" instead of just "custody")
 - **Rate limits are strict** — 5,000 queries/day, 2 req/sec, 1 concurrent request (enforced automatically by the built-in rate limiter)
