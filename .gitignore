@@ -5,3 +5,5 @@ dist/
 .env.*
 .DS_Store
 *.log
+mcp-publisher
+.mcpregistry_*
