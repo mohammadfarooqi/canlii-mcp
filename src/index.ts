@@ -52,9 +52,13 @@ async function apiFetch(url: string): Promise<Response> {
 	});
 }
 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const { version } = require("../package.json");
+
 const server = new McpServer({
 	name: "CanLII MCP",
-	version: "1.1.0",
+	version,
 	description: "Local MCP server for Canadian legal research via the CanLII API. Always include CanLII URLs in responses so the user can verify sources directly."
 });
 
@@ -90,8 +94,12 @@ function jsonResponse(data: unknown) {
 	return textResponse(JSON.stringify(data, null, 2));
 }
 
+function sanitizeError(message: string): string {
+	return message.replace(/api_key=[^&\s]*/gi, "api_key=REDACTED");
+}
+
 function errorResponse(message: string) {
-	return textResponse(message);
+	return textResponse(sanitizeError(message));
 }
 
 const dateParametersSchema = {

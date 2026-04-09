@@ -59,7 +59,7 @@ export const LegislationMetadataSchema = z.object({
     title: z.string(),
     citation: z.string(),
     language: z.string().optional(),
-    dateSchema: z.string().optional(),
+    dateScheme: z.string().optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
     repealed: z.string().optional(),
